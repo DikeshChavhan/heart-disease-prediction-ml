@@ -1,8 +1,10 @@
 import streamlit as st
 import numpy as np
 import joblib
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Load your trained model
+# Load model
 model = joblib.load("best_model.pkl")
 
 # --- Page Config ---
@@ -12,12 +14,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS ---
+# --- Custom CSS + Animation ---
 page_style = """
 <style>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 [data-testid="stAppViewContainer"] {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     color: #f5f6fa !important;
+    animation: fadeIn 1.2s ease-in-out;
 }
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #16213e, #1a1a2e);
@@ -54,9 +61,42 @@ input,select,textarea{background-color:#1e1e2f!important;color:white!important;}
 }
 .contact-info a{color:#00acee;text-decoration:none;font-weight:600;}
 .contact-info a:hover{text-decoration:underline;}
+/* Animated Banner */
+.banner {
+  background: linear-gradient(90deg, #ff4081, #ec407a, #f06292);
+  color: white;
+  text-align: center;
+  padding: 18px 10px;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  animation: fadeIn 2s ease-in-out;
+}
+.typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid white;
+  animation: typing 4s steps(40, end), blink 1s step-end infinite;
+}
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes blink {
+  50% { border-color: transparent; }
+}
 </style>
 """
 st.markdown(page_style, unsafe_allow_html=True)
+
+# --- Animated Welcome Banner ---
+st.markdown("""
+<div class="banner">
+  💓 <span class="typing">Welcome to the AI-Powered Heart Disease Prediction App!</span> 💻
+</div>
+""", unsafe_allow_html=True)
 
 # --- Top-right contact ---
 st.markdown("""
@@ -68,16 +108,16 @@ st.markdown("""
 
 # --- Sidebar Navigation ---
 st.sidebar.title("🧭 Navigation")
-page = st.sidebar.radio("Go to", ["🏠 About", "🧮 Predict", "📊 Dataset Info"])
+page = st.sidebar.radio("Go to", ["🏠 About", "🧮 Predict", "📊 Dataset Info", "📈 Model Insights"])
 
-# --- About ---
+# --- About Page ---
 if page == "🏠 About":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("💓 Heart Disease Prediction App")
     st.markdown("""
     ### 🤖 Overview
-    This app predicts the **likelihood of heart disease** using machine learning.  
-    Built with **Python, Scikit-learn, and Streamlit** by *Dikesh Chavhan* 🚀  
+    This AI-powered app predicts the **likelihood of heart disease** using machine learning.  
+    Built by **Dikesh Chavhan** with ❤️ using **Python, Scikit-learn, and Streamlit** 🚀  
 
     ---
     ### 🧠 Model
@@ -88,24 +128,22 @@ if page == "🏠 About":
     ---
     ### 💡 Modes
     - 🧍 **Smart Mode:** Simple lifestyle-based questions (no medical report needed)  
-    - 🩺 **Expert Mode:** Enter actual medical report values
+    - 🩺 **Expert Mode:** Enter actual medical parameters
 
-    ❤️ *Health is wealth — stay fit, stay aware!* 🫀
+    ❤️ *Your health matters — use AI for awareness!* 🫀
     """)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Prediction ---
+# --- Prediction Page ---
 elif page == "🧮 Predict":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("🩺 Heart Disease Risk Prediction")
 
-    # Mode toggle
     mode = st.radio("Select Input Mode:", ["🧍 Smart Mode (Easy)", "🩺 Expert Mode (Full)"])
     st.markdown("---")
 
     if mode == "🧍 Smart Mode (Easy)":
         st.subheader("🧍 Easy Mode: Lifestyle & Symptoms")
-
         age = st.slider("Age", 18, 100, 40)
         gender = st.selectbox("Gender", ["Male", "Female"])
         smoke = st.selectbox("Do you smoke?", ["No", "Sometimes", "Regularly"])
@@ -114,7 +152,6 @@ elif page == "🧮 Predict":
         tired = st.selectbox("Do you get tired easily?", ["No", "Yes"])
         overweight = st.selectbox("Are you overweight?", ["No", "Yes"])
 
-        # Estimate approximate values
         sex = 1 if gender == "Male" else 0
         cp = 2 if chest_pain == "Often" else (1 if chest_pain == "Sometimes" else 0)
         fbs = 1 if smoke == "Regularly" else 0
@@ -148,11 +185,10 @@ elif page == "🧮 Predict":
             thal = st.selectbox("Thalassemia (0–3)", [0, 1, 2, 3])
         sex = 1 if sex == "Male" else 0
 
-    # Prediction
     input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
                             thalach, exang, oldpeak, slope, ca, thal]])
 
-    if st.button("🔍 Predict"):
+    if st.button("🔍 Predict Risk"):
         prediction = model.predict(input_data)[0]
         if prediction == 1:
             st.error("⚠️ **High Risk of Heart Disease Detected!** ❤️‍🩹")
@@ -161,18 +197,51 @@ elif page == "🧮 Predict":
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Dataset Info ---
+# --- Dataset Info Page ---
 elif page == "📊 Dataset Info":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-    st.title("📊 Dataset Information")
+    st.title("📘 Dataset Information")
     st.markdown("""
-    ### 📘 UCI Heart Disease Dataset
     - **Rows:** 303  
-    - **Target:** `1` = disease, `0` = no disease  
-    - **Features:** Age, Sex, Chest Pain, BP, Cholesterol, ECG, Heart Rate, etc.  
+    - **Target Variable:** `1` = disease, `0` = no disease  
+    - **Features:**  
+      Age, Sex, Chest Pain Type, Resting BP, Cholesterol, ECG, Heart Rate, etc.  
     ---
-    ⚙️ Source: [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/Heart+Disease)
+    ⚙️ Source: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Heart+Disease)
     """)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# --- Model Insights Page ---
+elif page == "📈 Model Insights":
+    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+    st.title("📈 Model Insights")
+
+    try:
+        importances = model.feature_importances_
+        features = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
+                    "thalach", "exang", "oldpeak", "slope", "ca", "thal"]
+        df_imp = pd.DataFrame({"Feature": features, "Importance": importances})
+        df_imp = df_imp.sort_values(by="Importance", ascending=False)
+
+        st.subheader("🌟 Feature Importance")
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.barh(df_imp["Feature"], df_imp["Importance"], color="#e91e63")
+        ax.invert_yaxis()
+        ax.set_xlabel("Importance Score")
+        ax.set_ylabel("Feature")
+        ax.set_title("Top Features Impacting Predictions")
+        st.pyplot(fig)
+
+        st.markdown("""
+        ### 🧠 Interpretation
+        - **cp (Chest Pain Type):** Major heart stress indicator  
+        - **thalach (Max Heart Rate):** Lower rates = higher risk  
+        - **oldpeak (ST Depression):** High = likely disease  
+        - **chol (Cholesterol):** High = risk factor  
+        - **age:** Older = higher probability  
+        """)
+    except Exception:
+        st.warning("⚠️ Feature importances unavailable for this model type.")
     st.markdown("</div>", unsafe_allow_html=True)
 
 # --- Footer ---
