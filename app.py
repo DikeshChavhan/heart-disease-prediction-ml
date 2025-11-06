@@ -3,7 +3,7 @@ import numpy as np
 import joblib
 import pandas as pd
 import plotly.graph_objects as go
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 # Load trained model
 model = joblib.load("best_model.pkl")
@@ -16,9 +16,6 @@ st.set_page_config(
 )
 
 # Translator setup
-translator = Translator()
-
-# Language options
 languages = {
     "English": "en",
     "हिंदी (Hindi)": "hi",
@@ -26,7 +23,6 @@ languages = {
     "தமிழ் (Tamil)": "ta"
 }
 
-# Sidebar UI
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2966/2966486.png", width=60)
 st.sidebar.title("💓 HeartCheck")
 
@@ -34,12 +30,12 @@ st.sidebar.title("💓 HeartCheck")
 selected_lang = st.sidebar.selectbox("🌐 Choose Language", list(languages.keys()))
 target_lang = languages[selected_lang]
 
-# Translation helper function
+# Safe translator function
 def tr(text):
     if target_lang == "en":
         return text
     try:
-        return translator.translate(text, dest=target_lang).text
+        return GoogleTranslator(source="auto", target=target_lang).translate(text)
     except Exception:
         return text
 
@@ -61,15 +57,15 @@ LinkedIn</a> | 📞 +91 8591531092
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------- HOME PAGE ----------------------
+# ---------------------- HOME ----------------------
 if "🏠" in page:
-    st.markdown("""
+    st.markdown(f"""
     <div style='background: linear-gradient(90deg,#ff4081,#ec407a,#f06292);
     color:white;text-align:center;padding:18px;font-size:24px;font-weight:bold;
     border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);'>
-    💓 {} 💻
+    💓 {tr("Welcome to HeartCheck — Predict. Prevent. Protect.")} 💻
     </div>
-    """.format(tr("Welcome to HeartCheck — Predict. Prevent. Protect.")), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     st.title(tr("About HeartCheck"))
     st.write(tr("""
@@ -86,7 +82,7 @@ if "🏠" in page:
     - 💾 {tr('Tech Stack')}: Streamlit | Scikit-Learn | Plotly  
     """)
 
-# ---------------------- PREDICTION PAGE ----------------------
+# ---------------------- PREDICT ----------------------
 elif "🧮" in page:
     st.title(tr("🩺 Heart Disease Risk Prediction"))
 
@@ -141,17 +137,16 @@ elif "🧮" in page:
             thal = st.selectbox(tr("Thal (0-3)"), [0, 1, 2, 3])
         sex = 1 if sex == "Male" else 0
 
-    # Prepare input
+    # Input data
     X = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
                    thalach, exang, oldpeak, slope, ca, thal]])
 
-    # Prediction button
+    # Predict button
     if st.button(tr("🔍 Predict Risk")):
         prob = model.predict_proba(X)[0][1] if hasattr(model, "predict_proba") else float(model.predict(X)[0])
         pred = 1 if prob > 0.5 else 0
         st.session_state.pred = "High" if pred == 1 else "Low"
 
-        # Probability gauge
         gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=prob * 100,
@@ -177,17 +172,12 @@ elif "💡" in page:
     pred = st.session_state.get("pred", "Low")
     if pred == "High":
         st.error(tr("⚠️ You might have a higher risk of heart disease."))
-        tips = ["🥗 Eat fruits and whole grains",
-                "🏃‍♂️ Exercise 30 mins daily",
-                "🚭 Quit smoking",
-                "😌 Manage stress",
-                "💊 Regular health checkups"]
+        tips = ["🥗 Eat fruits and whole grains", "🏃‍♂️ Exercise 30 mins daily",
+                "🚭 Quit smoking", "😌 Manage stress", "💊 Regular health checkups"]
     else:
         st.success(tr("✅ Your risk appears low. Keep these habits strong!"))
-        tips = ["🍎 Eat balanced meals",
-                "🧘 Stay active and calm",
-                "💤 Sleep 7–8 hours",
-                "💧 Stay hydrated"]
+        tips = ["🍎 Eat balanced meals", "🧘 Stay active and calm",
+                "💤 Sleep 7–8 hours", "💧 Stay hydrated"]
     for t in tips:
         st.markdown(f"- {tr(t)}")
 
