@@ -2,51 +2,62 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# Load your trained model
+# Load model
 model = joblib.load("best_model.pkl")
 
-# --- Page Configuration ---
+# --- Page Config ---
 st.set_page_config(
     page_title="💓 Heart Disease Prediction App",
     page_icon="❤️",
     layout="wide"
 )
 
-# --- Custom CSS Styling ---
+# --- Custom Dark Theme CSS ---
 page_style = """
 <style>
-/* Background Gradient */
+/* Background Gradient (Dark Theme) */
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(to right, #ffebee, #e3f2fd);
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    color: #f5f6fa !important;
 }
 
-/* Center Card */
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
+    color: white;
+}
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* Main Card */
 .main-card {
-    background-color: #ffffffcc;
+    background-color: rgba(255, 255, 255, 0.05);
     padding: 30px 40px;
     border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     max-width: 800px;
     margin: 50px auto;
     backdrop-filter: blur(10px);
+    color: #f5f6fa;
 }
 
 /* Title Styling */
 h1, h2, h3 {
-    color: #d81b60;
+    color: #f8bbd0 !important;
     text-align: center;
     font-weight: 700;
 }
 
-/* Input labels */
+/* Labels */
 label {
     font-weight: 600 !important;
-    color: #37474f !important;
+    color: #f1f1f1 !important;
 }
 
 /* Buttons */
 div.stButton > button:first-child {
-    background-color: #d81b60;
+    background-color: #e91e63;
     color: white;
     border: none;
     border-radius: 12px;
@@ -58,6 +69,12 @@ div.stButton > button:first-child:hover {
     background-color: #ad1457;
 }
 
+/* Input fields */
+input, select, textarea {
+    background-color: #1e1e2f !important;
+    color: white !important;
+}
+
 /* Footer */
 .footer {
     position: fixed;
@@ -65,28 +82,29 @@ div.stButton > button:first-child:hover {
     bottom: 0;
     width: 100%;
     text-align: center;
-    background-color: #f8bbd0;
+    background: linear-gradient(90deg, #e91e63, #ad1457);
     padding: 10px;
     font-size: 14px;
-    color: #4a148c;
+    color: #fff;
     font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
-/* Top-right contact section */
+/* Top-right contact info */
 .contact-info {
     position: absolute;
     top: 15px;
     right: 25px;
     font-size: 15px;
-    background-color: #fff;
+    background-color: rgba(255,255,255,0.1);
     border-radius: 10px;
     padding: 10px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     text-align: right;
     line-height: 1.5;
 }
 .contact-info a {
-    color: #0a66c2;
+    color: #00acee;
     text-decoration: none;
     font-weight: 600;
 }
@@ -97,7 +115,7 @@ div.stButton > button:first-child:hover {
 """
 st.markdown(page_style, unsafe_allow_html=True)
 
-# --- Top Right Contact Info ---
+# --- Top Right Contact ---
 st.markdown("""
 <div class="contact-info">
     <a href="https://www.linkedin.com/in/dikeshchavhan18" target="_blank">🔗 LinkedIn</a><br>
@@ -116,23 +134,23 @@ if page == "🏠 About":
     st.markdown("""
     ### 🤖 Project Overview
     Welcome to the **Heart Disease Prediction App**!  
-    This machine learning web app predicts the **likelihood of heart disease** based on medical parameters.  
-    Built with **Python, Scikit-learn, and Streamlit**, this app demonstrates end-to-end ML deployment.  
-    
+    This ML-powered web app predicts the **risk of heart disease** using patient health data.  
+    Built with **Python, Scikit-learn, and Streamlit** — deployed by *Dikesh Chavhan* 🚀
+
     ---
-    ### 🧠 Model Info
+    ### 🧠 Model Details
     - **Dataset:** UCI Heart Disease  
-    - **Algorithm Used:** Random Forest Classifier  
+    - **Algorithm:** Random Forest Classifier 🌲  
     - **Accuracy:** ~89%  
-    - **Developer:** Dikesh Chavhan 🚀  
-    
+    - **Tech Stack:** Python | Pandas | Scikit-learn | Streamlit  
+
     ---
     ### 💡 How to Use
-    1. Go to the **Predict** page.  
-    2. Enter patient medical details.  
-    3. Click **Predict** to see the result instantly.  
-    
-    ❤️ Stay healthy — prevention is better than cure!
+    1. Navigate to the **Predict** tab  
+    2. Enter patient medical details  
+    3. Click **Predict** to view results instantly  
+
+    ❤️ *Stay fit. Stay heart-healthy!* 🫀
     """)
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -140,7 +158,7 @@ if page == "🏠 About":
 elif page == "🧮 Predict":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("🩺 Heart Disease Risk Prediction")
-    st.markdown("### Please enter patient details below:")
+    st.markdown("### Please enter the details below:")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -160,7 +178,6 @@ elif page == "🧮 Predict":
         thal = st.selectbox("Thalassemia (0–3)", [0, 1, 2, 3])
 
     sex = 1 if sex == "Male" else 0
-
     input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
                             thalach, exang, oldpeak, slope, ca, thal]])
 
@@ -168,9 +185,9 @@ elif page == "🧮 Predict":
     if st.button("🔍 Predict"):
         prediction = model.predict(input_data)[0]
         if prediction == 1:
-            st.error("⚠️ The model predicts a **High Risk of Heart Disease.** Stay safe! ❤️‍🩹")
+            st.error("⚠️ **High Risk of Heart Disease Detected!** ❤️‍🩹")
         else:
-            st.success("✅ The model predicts a **Low Risk of Heart Disease.** Keep it up! 💪")
+            st.success("✅ **Low Risk of Heart Disease. Stay Healthy! 💪**")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -182,20 +199,11 @@ elif page == "📊 Dataset Info":
     ### 📘 UCI Heart Disease Dataset Overview
     - **Rows:** 303  
     - **Target Variable:** `target` (1 = heart disease, 0 = no disease)  
-    - **Features:**
-        - Age, Sex, Chest Pain Type (cp)
-        - Resting Blood Pressure (trestbps)
-        - Serum Cholesterol (chol)
-        - Fasting Blood Sugar (fbs)
-        - Resting ECG (restecg)
-        - Max Heart Rate (thalach)
-        - Exercise Induced Angina (exang)
-        - ST Depression (oldpeak)
-        - Slope, Number of Vessels (ca)
-        - Thalassemia (thal)
-    
+    - **Features Include:**
+        - Age, Sex, Chest Pain Type, Resting BP, Cholesterol, ECG Results,  
+          Max Heart Rate, Exercise Angina, ST Depression, Slope, CA, Thal  
     ---
-    ⚙️ Data Source: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Heart+Disease)
+    ⚙️ **Source:** [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Heart+Disease)
     """)
     st.markdown("</div>", unsafe_allow_html=True)
 
