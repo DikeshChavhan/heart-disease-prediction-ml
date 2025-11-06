@@ -2,6 +2,6 @@ streamlit
 scikit-learn
 numpy
 pandas
-joblib
 plotly
+joblib
 googletrans==4.0.0rc1
