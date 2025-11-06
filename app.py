@@ -57,35 +57,34 @@ input,select,textarea{background-color:#1e1e2f!important;color:white!important;}
     position:absolute;top:15px;right:25px;font-size:15px;
     background-color:rgba(255,255,255,0.1);border-radius:10px;
     padding:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);
-    text-align:right;line-height:1.5;
+    text-align:right;line-height:1.5;display:flex;align-items:center;gap:6px;
 }
 .contact-info a{color:#00acee;text-decoration:none;font-weight:600;}
 .contact-info a:hover{text-decoration:underline;}
-/* Animated Banner */
-.banner {
-  background: linear-gradient(90deg, #ff4081, #ec407a, #f06292);
-  color: white;
-  text-align: center;
-  padding: 18px 10px;
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  animation: fadeIn 2s ease-in-out;
+/* LinkedIn icon */
+.linkedin-icon {
+  width: 20px; height: 20px; vertical-align: middle;
 }
-.typing {
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 3px solid white;
-  animation: typing 4s steps(40, end), blink 1s step-end infinite;
+
+/* Mode Boxes */
+.mode-box {
+    background: rgba(255,255,255,0.1);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 2px solid transparent;
 }
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
+.mode-box:hover {
+    border: 2px solid #e91e63;
+    transform: scale(1.03);
+    background: rgba(255,255,255,0.15);
 }
-@keyframes blink {
-  50% { border-color: transparent; }
+.mode-selected {
+    border: 2px solid #e91e63;
+    background: rgba(255,255,255,0.18);
 }
 </style>
 """
@@ -93,22 +92,26 @@ st.markdown(page_style, unsafe_allow_html=True)
 
 # --- Animated Welcome Banner ---
 st.markdown("""
-<div class="banner">
-  💓 <span class="typing">Welcome to the AI-Powered Heart Disease Prediction App!</span> 💻
+<div style='background: linear-gradient(90deg, #ff4081, #ec407a, #f06292);
+color: white; text-align: center; padding: 18px 10px; font-size: 24px;
+font-weight: bold; letter-spacing: 1px; border-radius: 12px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 2s ease-in-out;'>
+💓 Welcome to the <span style='color:#fff59d;'>AI-Powered Heart Disease Prediction App</span> 💻
 </div>
 """, unsafe_allow_html=True)
 
 # --- Top-right contact ---
 st.markdown("""
 <div class="contact-info">
-    <a href="https://www.linkedin.com/in/dikeshchavhan18" target="_blank">🔗 LinkedIn</a><br>
-    📞 +91 8591531092
+    <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" class="linkedin-icon">
+    <a href="https://www.linkedin.com/in/dikeshchavhan18" target="_blank">LinkedIn</a>
+    | 📞 +91 8591531092
 </div>
 """, unsafe_allow_html=True)
 
 # --- Sidebar Navigation ---
 st.sidebar.title("🧭 Navigation")
-page = st.sidebar.radio("Go to", ["🏠 About", "🧮 Predict", "📊 Dataset Info", "📈 Model Insights"])
+page = st.sidebar.radio("Go to", ["🏠 About", "🧮 Predict", "💡 Health Tips", "📊 Dataset Info", "📈 Model Insights"])
 
 # --- About Page ---
 if page == "🏠 About":
@@ -128,7 +131,7 @@ if page == "🏠 About":
     ---
     ### 💡 Modes
     - 🧍 **Smart Mode:** Simple lifestyle-based questions (no medical report needed)  
-    - 🩺 **Expert Mode:** Enter actual medical parameters
+    - 🩺 **Expert Mode:** Enter exact medical parameters
 
     ❤️ *Your health matters — use AI for awareness!* 🫀
     """)
@@ -139,10 +142,20 @@ elif page == "🧮 Predict":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("🩺 Heart Disease Risk Prediction")
 
-    mode = st.radio("Select Input Mode:", ["🧍 Smart Mode (Easy)", "🩺 Expert Mode (Full)"])
+    col_mode1, col_mode2 = st.columns(2)
+
+    with col_mode1:
+        if st.button("🧍 Smart Mode (Easy)", key="smart"):
+            st.session_state.mode = "Smart"
+    with col_mode2:
+        if st.button("🩺 Expert Mode (Full)", key="expert"):
+            st.session_state.mode = "Expert"
+
+    # Default to Smart Mode
+    mode = st.session_state.get("mode", "Smart")
     st.markdown("---")
 
-    if mode == "🧍 Smart Mode (Easy)":
+    if mode == "Smart":
         st.subheader("🧍 Easy Mode: Lifestyle & Symptoms")
         age = st.slider("Age", 18, 100, 40)
         gender = st.selectbox("Gender", ["Male", "Female"])
@@ -192,8 +205,40 @@ elif page == "🧮 Predict":
         prediction = model.predict(input_data)[0]
         if prediction == 1:
             st.error("⚠️ **High Risk of Heart Disease Detected!** ❤️‍🩹")
+            st.session_state.pred = "High"
         else:
             st.success("✅ **Low Risk of Heart Disease. Stay Healthy! 💪**")
+            st.session_state.pred = "Low"
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# --- Health Tips Page ---
+elif page == "💡 Health Tips":
+    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+    st.title("💡 Personalized Health Tips")
+
+    pred = st.session_state.get("pred", "Low")
+
+    if pred == "High":
+        st.error("⚠️ Based on your inputs, you might have a **higher risk** of heart disease.")
+        st.markdown("""
+        ### 🩺 Recommended Lifestyle Changes:
+        - 🥗 **Adopt a Heart-Healthy Diet:** Eat more fruits, veggies, and whole grains.
+        - 🏃‍♂️ **Exercise Regularly:** Aim for 30 minutes of walking daily.
+        - 🚭 **Quit Smoking:** Tobacco significantly increases heart risk.
+        - 😌 **Manage Stress:** Try meditation or breathing exercises.
+        - 💊 **Regular Checkups:** Monitor cholesterol, blood pressure, and sugar.
+        """)
+    else:
+        st.success("✅ Your risk appears **low**, keep maintaining a healthy lifestyle!")
+        st.markdown("""
+        ### 🌟 Maintain Good Heart Health:
+        - 🍎 **Eat Balanced Meals:** Limit sugar and processed foods.
+        - 🧘 **Stay Active & Stress-Free:** Exercise + mindfulness = happy heart.
+        - 💤 **Sleep Well:** 7–8 hours of good rest.
+        - 💧 **Stay Hydrated:** Drink enough water daily.
+        - 🤝 **Regular Health Checkups:** Prevention is better than cure!
+        """)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -234,11 +279,9 @@ elif page == "📈 Model Insights":
 
         st.markdown("""
         ### 🧠 Interpretation
-        - **cp (Chest Pain Type):** Major heart stress indicator  
-        - **thalach (Max Heart Rate):** Lower rates = higher risk  
-        - **oldpeak (ST Depression):** High = likely disease  
-        - **chol (Cholesterol):** High = risk factor  
-        - **age:** Older = higher probability  
+        - **cp (Chest Pain Type)** and **thalach (Max Heart Rate)** have strong influence  
+        - **oldpeak** and **cholesterol** contribute to heart risk  
+        - **age** increases overall probability  
         """)
     except Exception:
         st.warning("⚠️ Feature importances unavailable for this model type.")
