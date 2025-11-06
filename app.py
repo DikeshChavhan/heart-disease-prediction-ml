@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Translator setup
+# Available languages
 languages = {
     "English": "en",
     "हिंदी (Hindi)": "hi",
@@ -23,15 +23,16 @@ languages = {
     "தமிழ் (Tamil)": "ta"
 }
 
+# Sidebar
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2966/2966486.png", width=60)
 st.sidebar.title("💓 HeartCheck")
 
-# Language selector
 selected_lang = st.sidebar.selectbox("🌐 Choose Language", list(languages.keys()))
 target_lang = languages[selected_lang]
 
-# Safe translator function
+# Translation function
 def tr(text):
+    """Translate text to the selected language."""
     if target_lang == "en":
         return text
     try:
@@ -39,7 +40,7 @@ def tr(text):
     except Exception:
         return text
 
-# Sidebar navigation
+# Sidebar Navigation
 page = st.sidebar.radio(
     tr("Navigate"),
     [tr("🏠 Home"), tr("🧮 Predict"), tr("💡 Health Tips"), tr("📊 Dataset Info"), tr("🗣 Virtual Assistant")]
@@ -57,7 +58,7 @@ LinkedIn</a> | 📞 +91 8591531092
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------- HOME ----------------------
+# ---------------- HOME ----------------
 if "🏠" in page:
     st.markdown(f"""
     <div style='background: linear-gradient(90deg,#ff4081,#ec407a,#f06292);
@@ -82,7 +83,7 @@ if "🏠" in page:
     - 💾 {tr('Tech Stack')}: Streamlit | Scikit-Learn | Plotly  
     """)
 
-# ---------------------- PREDICT ----------------------
+# ---------------- PREDICT ----------------
 elif "🧮" in page:
     st.title(tr("🩺 Heart Disease Risk Prediction"))
 
@@ -97,7 +98,6 @@ elif "🧮" in page:
     mode = st.session_state.get("mode", "Smart")
     st.markdown("---")
 
-    # Smart Mode
     if mode == "Smart":
         age = st.slider(tr("Age"), 18, 100, 40)
         gender = st.selectbox(tr("Gender"), [tr("Male"), tr("Female")])
@@ -117,7 +117,6 @@ elif "🧮" in page:
         oldpeak = 2.0 if chest_pain == tr("Often") else 0.5
         slope, ca, thal, restecg = 1, 0, 2, 1
 
-    # Expert Mode
     else:
         c1, c2 = st.columns(2)
         with c1:
@@ -137,11 +136,9 @@ elif "🧮" in page:
             thal = st.selectbox(tr("Thal (0-3)"), [0, 1, 2, 3])
         sex = 1 if sex == "Male" else 0
 
-    # Input data
     X = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
                    thalach, exang, oldpeak, slope, ca, thal]])
 
-    # Predict button
     if st.button(tr("🔍 Predict Risk")):
         prob = model.predict_proba(X)[0][1] if hasattr(model, "predict_proba") else float(model.predict(X)[0])
         pred = 1 if prob > 0.5 else 0
@@ -166,7 +163,7 @@ elif "🧮" in page:
         else:
             st.success(tr("✅ Low Risk of Heart Disease. Stay Healthy!"))
 
-# ---------------------- HEALTH TIPS ----------------------
+# ---------------- HEALTH TIPS ----------------
 elif "💡" in page:
     st.title(tr("💡 Personalized Health Tips"))
     pred = st.session_state.get("pred", "Low")
@@ -181,7 +178,7 @@ elif "💡" in page:
     for t in tips:
         st.markdown(f"- {tr(t)}")
 
-# ---------------------- DATASET INFO ----------------------
+# ---------------- DATASET INFO ----------------
 elif "📊" in page:
     st.title(tr("📘 Dataset Information"))
     st.markdown(tr("""
@@ -190,7 +187,7 @@ elif "📊" in page:
     - Features: Age, Sex, Chest Pain, BP, Cholesterol, ECG, Heart Rate, etc.
     """))
 
-# ---------------------- VIRTUAL ASSISTANT ----------------------
+# ---------------- VIRTUAL ASSISTANT ----------------
 elif "🗣" in page:
     st.title(tr("🗣 Virtual Health Assistant"))
     st.markdown(tr("Ask me anything about heart health ❤️"))
@@ -201,14 +198,19 @@ elif "🗣" in page:
         "cholesterol": "🥗 Eat oats, nuts, and fruits to lower cholesterol.",
         "smoking": "🚭 Smoking increases heart disease risk. Quitting helps quickly.",
         "stress": "😌 Meditation and yoga help reduce stress.",
-        "diet": "🍎 Eat less sugar, more greens, and lean proteins."
+        "diet": "🍎 Eat less sugar, more greens, and lean proteins.",
+        "hello": "👋 Hello! How can I help you with your heart health today?"
     }
 
     if user_input:
-        response = "💬 " + next((ans for key, ans in faq.items() if key in user_input.lower()), tr("I'm not sure, but try to eat healthy and stay active! 💪"))
-        st.markdown(response)
+        # find matching answer
+        english_reply = next((ans for key, ans in faq.items() if key in user_input.lower()), 
+                             "I'm not sure, but try to eat healthy and stay active! 💪")
+        # translate the reply into selected language
+        reply = tr(english_reply)
+        st.markdown("💬 " + reply)
 
-# ---------------------- FOOTER ----------------------
+# ---------------- FOOTER ----------------
 st.markdown("""
 <div style='position:fixed;left:0;bottom:0;width:100%;text-align:center;
 background:linear-gradient(90deg,#e91e63,#ad1457);padding:10px;
