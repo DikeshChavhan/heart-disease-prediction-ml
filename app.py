@@ -193,28 +193,53 @@ elif "🗣" in page:
     st.markdown(tr("Ask me anything about heart health ❤️"))
     user_input = st.chat_input(tr("Type your question here..."))
 
-    faq = {
-        "exercise": "🏃‍♂️ Regular exercise strengthens your heart and improves blood flow.",
-        "cholesterol": "🥗 Eat oats, nuts, and fruits to lower cholesterol.",
-        "smoking": "🚭 Smoking increases heart disease risk. Quitting helps quickly.",
-        "stress": "😌 Meditation and yoga help reduce stress.",
-        "diet": "🍎 Eat less sugar, more greens, and lean proteins.",
-        "hello": "👋 Hello! How can I help you with your heart health today?"
-    }
-
     if user_input:
-        # find matching answer
-        english_reply = next((ans for key, ans in faq.items() if key in user_input.lower()), 
-                             "I'm not sure, but try to eat healthy and stay active! 💪")
-        # translate the reply into selected language
-        reply = tr(english_reply)
-        st.markdown("💬 " + reply)
+        question = user_input.lower()
 
-# ---------------- FOOTER ----------------
-st.markdown("""
-<div style='position:fixed;left:0;bottom:0;width:100%;text-align:center;
-background:linear-gradient(90deg,#e91e63,#ad1457);padding:10px;
-font-size:14px;color:#fff;font-weight:500;'>
-Developed with ❤️ by <b>Dikesh Chavhan</b> | © 2025 | HeartCheck
-</div>
-""", unsafe_allow_html=True)
+        # Define a richer dictionary of Q&A pairs
+        faq = {
+            ("exercise", "workout", "fitness", "walk", "run"): 
+                "🏃‍♂️ Regular physical activity helps your heart stay strong. Try 30 minutes of brisk walking 5 times a week.",
+
+            ("cholesterol", "fat", "oil", "diet for cholesterol"): 
+                "🥗 To reduce cholesterol, eat oats, whole grains, fruits, and avoid fried foods and trans fats.",
+
+            ("smoking", "cigarette", "tobacco"): 
+                "🚭 Smoking is a major cause of heart disease. Quitting lowers your risk within weeks.",
+
+            ("stress", "anxiety", "tension", "mental health"): 
+                "😌 Chronic stress affects heart health. Try meditation, yoga, or deep breathing to relax.",
+
+            ("diet", "food", "nutrition", "eat"): 
+                "🍎 A heart-healthy diet includes fruits, vegetables, whole grains, lean proteins, and less sugar.",
+
+            ("sleep", "insomnia", "tired", "fatigue"): 
+                "💤 Proper sleep (7–8 hours) reduces heart strain and keeps your blood pressure stable.",
+
+            ("water", "hydration", "drink"): 
+                "💧 Staying hydrated helps maintain blood flow and reduces strain on your heart.",
+
+            ("blood pressure", "bp", "hypertension"): 
+                "🩸 Keep your blood pressure in check with low salt intake and regular exercise.",
+
+            ("hello", "hi", "hey", "namaste"): 
+                "👋 Hello! How can I help you with your heart health today?",
+
+            ("heart attack", "chest pain", "emergency"): 
+                "🚨 If you feel severe chest pain or shortness of breath, seek immediate medical attention!"
+        }
+
+        # Try to find a matching answer
+        reply = None
+        for keywords, answer in faq.items():
+            if any(word in question for word in keywords):
+                reply = answer
+                break
+
+        if not reply:
+            reply = "💬 I'm not sure about that, but maintaining a healthy lifestyle, eating right, and regular checkups are the best ways to protect your heart. ❤️"
+
+        # Translate reply to user language
+        translated_reply = tr(reply)
+        st.markdown(translated_reply)
+
