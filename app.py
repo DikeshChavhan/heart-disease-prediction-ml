@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS + Animation ---
+# --- Custom CSS ---
 page_style = """
 <style>
 @keyframes fadeIn {
@@ -61,12 +61,9 @@ input,select,textarea{background-color:#1e1e2f!important;color:white!important;}
 }
 .contact-info a{color:#00acee;text-decoration:none;font-weight:600;}
 .contact-info a:hover{text-decoration:underline;}
-/* LinkedIn icon */
 .linkedin-icon {
   width: 20px; height: 20px; vertical-align: middle;
 }
-
-/* Mode Boxes */
 .mode-box {
     background: rgba(255,255,255,0.1);
     padding: 25px;
@@ -90,16 +87,6 @@ input,select,textarea{background-color:#1e1e2f!important;color:white!important;}
 """
 st.markdown(page_style, unsafe_allow_html=True)
 
-# --- Animated Welcome Banner ---
-st.markdown("""
-<div style='background: linear-gradient(90deg, #ff4081, #ec407a, #f06292);
-color: white; text-align: center; padding: 18px 10px; font-size: 24px;
-font-weight: bold; letter-spacing: 1px; border-radius: 12px;
-box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 2s ease-in-out;'>
-💓 Welcome to the <span style='color:#fff59d;'>AI-Powered Heart Disease Prediction App</span> 💻
-</div>
-""", unsafe_allow_html=True)
-
 # --- Top-right contact ---
 st.markdown("""
 <div class="contact-info">
@@ -111,15 +98,24 @@ st.markdown("""
 
 # --- Sidebar Navigation ---
 st.sidebar.title("🧭 Navigation")
-page = st.sidebar.radio("Go to", ["🏠 About", "🧮 Predict", "💡 Health Tips", "📊 Dataset Info", "📈 Model Insights"])
+page = st.sidebar.radio("Go to", ["🏠 Home", "🧮 Predict", "💡 Health Tips", "📊 Dataset Info"])
 
-# --- About Page ---
-if page == "🏠 About":
+# --- HOME PAGE ---
+if page == "🏠 Home":
+    st.markdown("""
+    <div style='background: linear-gradient(90deg, #ff4081, #ec407a, #f06292);
+    color: white; text-align: center; padding: 18px 10px; font-size: 24px;
+    font-weight: bold; letter-spacing: 1px; border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 2s ease-in-out;'>
+    💓 Welcome to the <span style='color:#fff59d;'>Heart Disease Prediction App</span> 💻
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("💓 Heart Disease Prediction App")
     st.markdown("""
     ### 🤖 Overview
-    This AI-powered app predicts the **likelihood of heart disease** using machine learning.  
+    This web app helps you **predict the likelihood of heart disease** using machine learning.  
     Built by **Dikesh Chavhan** with ❤️ using **Python, Scikit-learn, and Streamlit** 🚀  
 
     ---
@@ -131,19 +127,18 @@ if page == "🏠 About":
     ---
     ### 💡 Modes
     - 🧍 **Smart Mode:** Simple lifestyle-based questions (no medical report needed)  
-    - 🩺 **Expert Mode:** Enter exact medical parameters
+    - 🩺 **Expert Mode:** Enter your medical parameters
 
-    ❤️ *Your health matters — use AI for awareness!* 🫀
+    ❤️ *Your heart matters — check your health status today!* 🫀
     """)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Prediction Page ---
+# --- PREDICTION PAGE ---
 elif page == "🧮 Predict":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("🩺 Heart Disease Risk Prediction")
 
     col_mode1, col_mode2 = st.columns(2)
-
     with col_mode1:
         if st.button("🧍 Smart Mode (Easy)", key="smart"):
             st.session_state.mode = "Smart"
@@ -151,7 +146,6 @@ elif page == "🧮 Predict":
         if st.button("🩺 Expert Mode (Full)", key="expert"):
             st.session_state.mode = "Expert"
 
-    # Default to Smart Mode
     mode = st.session_state.get("mode", "Smart")
     st.markdown("---")
 
@@ -212,7 +206,7 @@ elif page == "🧮 Predict":
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Health Tips Page ---
+# --- HEALTH TIPS PAGE ---
 elif page == "💡 Health Tips":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("💡 Personalized Health Tips")
@@ -223,26 +217,26 @@ elif page == "💡 Health Tips":
         st.error("⚠️ Based on your inputs, you might have a **higher risk** of heart disease.")
         st.markdown("""
         ### 🩺 Recommended Lifestyle Changes:
-        - 🥗 **Adopt a Heart-Healthy Diet:** Eat more fruits, veggies, and whole grains.
-        - 🏃‍♂️ **Exercise Regularly:** Aim for 30 minutes of walking daily.
-        - 🚭 **Quit Smoking:** Tobacco significantly increases heart risk.
-        - 😌 **Manage Stress:** Try meditation or breathing exercises.
-        - 💊 **Regular Checkups:** Monitor cholesterol, blood pressure, and sugar.
+        - 🥗 **Adopt a Heart-Healthy Diet:** Eat fruits, veggies, and whole grains.
+        - 🏃‍♂️ **Exercise Regularly:** Aim for 30 minutes daily.
+        - 🚭 **Quit Smoking:** It greatly increases heart risk.
+        - 😌 **Manage Stress:** Meditation and yoga help.
+        - 💊 **Regular Checkups:** Track cholesterol, BP, and sugar.
         """)
     else:
         st.success("✅ Your risk appears **low**, keep maintaining a healthy lifestyle!")
         st.markdown("""
         ### 🌟 Maintain Good Heart Health:
-        - 🍎 **Eat Balanced Meals:** Limit sugar and processed foods.
-        - 🧘 **Stay Active & Stress-Free:** Exercise + mindfulness = happy heart.
-        - 💤 **Sleep Well:** 7–8 hours of good rest.
-        - 💧 **Stay Hydrated:** Drink enough water daily.
-        - 🤝 **Regular Health Checkups:** Prevention is better than cure!
+        - 🍎 **Eat Balanced Meals:** Avoid processed foods.
+        - 🧘 **Stay Active:** Exercise & mindfulness.
+        - 💤 **Sleep Well:** 7–8 hours daily.
+        - 💧 **Stay Hydrated:** Drink enough water.
+        - 🤝 **Routine Checkups:** Prevention is better than cure!
         """)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Dataset Info Page ---
+# --- DATASET INFO PAGE ---
 elif page == "📊 Dataset Info":
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
     st.title("📘 Dataset Information")
@@ -256,38 +250,7 @@ elif page == "📊 Dataset Info":
     """)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Model Insights Page ---
-elif page == "📈 Model Insights":
-    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-    st.title("📈 Model Insights")
-
-    try:
-        importances = model.feature_importances_
-        features = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
-                    "thalach", "exang", "oldpeak", "slope", "ca", "thal"]
-        df_imp = pd.DataFrame({"Feature": features, "Importance": importances})
-        df_imp = df_imp.sort_values(by="Importance", ascending=False)
-
-        st.subheader("🌟 Feature Importance")
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.barh(df_imp["Feature"], df_imp["Importance"], color="#e91e63")
-        ax.invert_yaxis()
-        ax.set_xlabel("Importance Score")
-        ax.set_ylabel("Feature")
-        ax.set_title("Top Features Impacting Predictions")
-        st.pyplot(fig)
-
-        st.markdown("""
-        ### 🧠 Interpretation
-        - **cp (Chest Pain Type)** and **thalach (Max Heart Rate)** have strong influence  
-        - **oldpeak** and **cholesterol** contribute to heart risk  
-        - **age** increases overall probability  
-        """)
-    except Exception:
-        st.warning("⚠️ Feature importances unavailable for this model type.")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# --- Footer ---
+# --- FOOTER ---
 st.markdown("""
 <div class='footer'>
     Developed with ❤️ by <b>Dikesh Chavhan</b> | © 2025 | 💻 Machine Learning Project
