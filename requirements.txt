@@ -3,5 +3,5 @@ scikit-learn
 numpy
 pandas
 joblib
-xgboost
-matplotlib
+plotly
+googletrans==4.0.0rc1
